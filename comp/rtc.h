@@ -21,9 +21,11 @@
 #include <rtm/DataFlowComponentBase.h>
 #include <rtm/InPort.h>
 #include <rtm/OutPort.h>
-//#include <rtm/CorbaPort.h>
-//#include "service_impl.h"
+#include <rtm/idl/BasicDataType.hh>
+#include <rtm/idl/ExtendedDataTypes.hh>
+#include <rtm/idl/InterfaceDataTypes.hh>
 #include <libfreenect.h>
+#include <stdexcept>
 
 using namespace RTC;
 
@@ -39,38 +41,40 @@ class BaseRTCError : public std::runtime_error
 
 
 class RTCKinect
-: public RTCKinect::DataFlowComponentBase
+: public RTC::DataFlowComponentBase
 {
     public:
         RTCKinect(RTC::Manager* manager);
         ~RTCKinect();
 
         virtual RTC::ReturnCode_t onInitialize();
-        //virtual RTC::ReturnCode_t onFinalize();
         virtual RTC::ReturnCode_t onActivated(RTC::UniqueId ec_id);
         virtual RTC::ReturnCode_t onDeactivated(RTC::UniqueId ec_id);
         virtual RTC::ReturnCode_t onExecute(RTC::UniqueId ec_id);
 
     private:
         RTC::TimedFloat tilt_;
-        RTC::InPort<RTC::> tilt_port_;
+        RTC::InPort<RTC::TimedFloat> tilt_port_;
         RTC::CameraImage image_;
         RTC::OutPort<RTC::CameraImage> image_port_;
         RTC::CameraImage depth_;
         RTC::OutPort<RTC::CameraImage> depth_port_;
-        //ServiceProvider svc_prov_;
-        //RTC::CorbaPort svc_port_;
+        RTC::TimedAcceleration3D raw_accel_;
+        RTC::OutPort<RTC::TimedAcceleration3D> raw_accel_port_;
+        RTC::TimedAcceleration3D mks_accel_;
+        RTC::OutPort<RTC::TimedAcceleration3D> mks_accel_port_;
 
         unsigned int dev_num_;
         freenect_context* cxt_;
         freenect_device* dev_;
 
-        void image_cb(freenect_device *dev, freenect_pixel *image,
-                uint32_t timestamp);
-        void depth_cb(freenect_device *dev, freenect_depth *depth_data,
-                uint32_t timestamp);
+        void process_imu();
 };
 
+
+void image_cb(freenect_device *dev, freenect_pixel *image, uint32_t timestamp);
+void depth_cb(freenect_device *dev, freenect_depth *depth_data, uint32_t
+        timestamp);
 
 extern "C"
 {
