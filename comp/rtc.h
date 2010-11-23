@@ -72,10 +72,6 @@ class RTCKinect
 };
 
 
-void image_cb(freenect_device *dev, freenect_pixel *image, uint32_t timestamp);
-void depth_cb(freenect_device *dev, freenect_depth *depth_data,
-        uint32_t timestamp);
-
 extern "C"
 {
     DLL_EXPORT void rtc_init(RTC::Manager* manager);

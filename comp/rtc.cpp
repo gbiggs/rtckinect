@@ -27,6 +27,35 @@ bool new_depth;
 RTC::CameraImage depth_data;
 
 
+void image_cb(freenect_device *dev, freenect_pixel *image, uint32_t timestamp)
+{
+    coil::Guard<coil::Mutex> guard(mutex);
+
+    image_data.tm.sec = timestamp / 1000000000;
+    image_data.tm.nsec = timestamp % 1000000000;
+    for (unsigned int ii = 0; ii < FREENECT_RGB_SIZE; ii++)
+    {
+        image_data.pixels[ii] = image[ii];
+    }
+    new_image = true;
+}
+
+
+void depth_cb(freenect_device *dev, void *raw_depth, uint32_t timestamp)
+{
+    coil::Guard<coil::Mutex> guard(mutex);
+    freenect_depth* depth(reinterpret_cast<freenect_depth*>(raw_depth));
+
+    depth_data.tm.sec = timestamp / 1000000000;
+    depth_data.tm.nsec = timestamp % 1000000000;
+    for (unsigned int ii = 0; ii < FREENECT_DEPTH_SIZE; ii++)
+    {
+        depth_data.pixels[ii] = depth[ii];
+    }
+    new_depth = true;
+}
+
+
 RTCKinect::RTCKinect(RTC::Manager* manager)
     : RTC::DataFlowComponentBase(manager),
     tilt_port_("tilt", tilt_),
@@ -117,6 +146,8 @@ RTC::ReturnCode_t RTCKinect::onActivated(RTC::UniqueId ec_id)
 
 RTC::ReturnCode_t RTCKinect::onDeactivated(RTC::UniqueId ec_id)
 {
+    freenect_stop_rgb(dev_);
+    freenect_stop_depth(dev_);
     return RTC::RTC_OK;
 }
 
@@ -166,34 +197,6 @@ void RTCKinect::process_imu()
     freenect_get_mks_accel(dev_, &mks_accel_.data.ax, &mks_accel_.data.ay,
             &mks_accel_.data.az);
     mks_accel_port_.write();
-}
-
-
-void image_cb(freenect_device *dev, freenect_pixel *image, uint32_t timestamp)
-{
-    coil::Guard<coil::Mutex> guard(mutex);
-
-    image_data.tm.sec = timestamp / 1000000000;
-    image_data.tm.nsec = timestamp % 1000000000;
-    for (unsigned int ii = 0; ii < FREENECT_RGB_SIZE; ii++)
-    {
-        image_data.pixels[ii] = image[ii];
-    }
-    new_image = true;
-}
-
-
-void depth_cb(freenect_device *dev, freenect_depth *depth, uint32_t timestamp)
-{
-    coil::Guard<coil::Mutex> guard(mutex);
-
-    depth_data.tm.sec = timestamp / 1000000000;
-    depth_data.tm.nsec = timestamp % 1000000000;
-    for (unsigned int ii = 0; ii < FREENECT_DEPTH_SIZE; ii++)
-    {
-        depth_data.pixels[ii] = depth[ii];
-    }
-    new_depth = true;
 }
 
 
