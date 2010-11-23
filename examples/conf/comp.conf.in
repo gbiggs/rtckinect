@@ -1,0 +1,9 @@
+configuration.active_config: example
+
+conf.example.: @CMAKE_INSTALL_PREFIX@/share/rtc/
+
+conf.__widget__.: text
+conf.__widget__.: spin
+
+conf.__constraints__.: 0<=x<=100
+

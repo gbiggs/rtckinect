@@ -1,0 +1,151 @@
+\documentclass[a4paper,10pt]{article}
+\usepackage[utf8x]{inputenc}
+\usepackage{listings}
+\usepackage{a4wide}
+\usepackage{tabularx}
+\usepackage{booktabs}
+
+\lstloadlanguages{Bash}
+\lstset{basicstyle=\small\ttfamily, escapeinside={(*@}{@*)},
+showstringspaces=false, breaklines=true, breakatwhitespace=true,
+tabsize=4, language=Bash, numberfirstline=true,
+commentstyle=\itshape\color{CommentGreen},
+stringstyle=\color{DataTypeBlue}}
+\newcommand{\ilcode}[1]{\lstinline|#1|}
+
+\title{RTC: User Guide}
+\author{Geoffrey Biggs}
+
+\begin{document}
+\maketitle
+
+\section{Introduction}
+\label{sec:intro}
+
+
+This software is developed at the National Institute of Advanced Industrial
+Science and Technology. Approval number ???. The development was
+financially supported by the New Energy and Industrial Technology Development
+Organisation Project for Strategic Development of Advanced Robotics Elemental
+Technologies.  This software is licensed under the Eclipse Public License -v
+1.0 (EPL). See LICENSE.TXT.
+
+\section{Requirements}
+\label{sec:requirements}
+
+<COMP> requires the C++ version of OpenRTM-aist-1.0.0.
+
+<COMP> uses the CMake build system\footnote{http://www.cmake.org/}. You will
+need at least version 2.6 to be able to build the component.
+
+\section{Installation}
+\label{sec:installation}
+
+\subsection{Binary}
+
+Users of Windows can install the component using the binary installer. This
+will install the component and all its necessary dependencies. It is the
+recommended method of installation in Windows.
+
+\begin{enumerate}
+  \item Download the installer from the website.
+  \item Double-click the executable file to begin installation.
+  \item Follow the instructions to install the component.
+  \item You may need to restart your computer for environment variable changes
+  to take effect before using the component.
+\end{enumerate}
+
+The component can be launched by double-clicking the
+\verb|rtc_hokuyoaist_standalone| executable. The \verb|rtc_hokuyoaist| library
+is available for loading into a manager, using the initialisation function
+\verb|rtc_init|.
+
+\subsection{From source}
+
+Follow these steps to install :
+
+\begin{enumerate}
+  \item Download the source, either from the repository or a source archive,
+  and extract it somewhere.
+
+  \verb|tar -xvzf rtc.tar.gz|
+  \item Change to the directory containing the extracted source.
+
+  \verb|cd rtc.0.0|
+  \item Create a directory called ``build'':
+
+  \verb|mkdir build|
+  \item Change to that directory.
+
+  \verb|cd build|
+  \item Run cmake or cmake-gui.
+
+  \verb|cmake ../|
+  \item If no errors occurred, run make.
+
+  \verb|make|
+  \item Finally, install the component. Ensure the necessary permissions to
+  install into the chosen prefix are available.
+
+  \verb|make install|
+  \item The install destination can be changed by executing ccmake and changing
+  the variable \verb|CMAKE_INSTALL_PREFIX|.
+
+  \verb|ccmake ../|
+\end{enumerate}
+
+The component is now ready for use. See the next section for instructions on
+configuring the component.
+
+<COMP> can be launched in stand-alone mode by executing the
+\verb|rtc_standalone| executable (installed into \verb|${prefix}/bin|).
+Alternatively, \verb|librtc.so| can be loaded into a manager, using the
+initialisation function \verb|rtc_init|. This shared object can be found in
+\verb|${prefix}/lib| or \verb|${prefix}/lib64|.
+
+
+\section{Configuration}
+\label{sec:configuration}
+
+The available configuration parameters are described in
+Table~\ref{tab:config_params}.
+
+\begin{table}[t]
+  \centering
+  \begin{tabularx}{\columnwidth}{lX}
+    \toprule
+    Parameter & Effect \\
+    \midrule
+    \bottomrule
+  \end{tabularx}
+  \caption{Available configuration parameters.}
+  \label{tab:config_params}
+\end{table}
+
+\section{Ports}
+\label{sec:port}
+
+The ports provided by the component are described in Table~\ref{tab:ports}.
+
+\begin{table}[t]
+  \centering
+  \begin{tabularx}{\columnwidth}{lllX}
+    \toprule
+    Name & Type & Data type & Purpose \\
+    \midrule
+    \bottomrule
+  \end{tabularx}
+  \caption{Available ports.}
+  \label{tab:ports}
+\end{table}
+
+\section{Examples}
+\label{sec:examples}
+
+An example configuration file is provided in the
+\verb|${prefix}/share/rtc/examples/conf/| directory.
+
+% \section{Changelog}
+
+
+\end{document}

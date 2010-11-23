@@ -1,0 +1,49 @@
+set(CPACK_PACKAGE_NAME "@PROJECT_NAME@")
+set(CPACK_PACKAGE_VERSION_MAJOR "@RTC_MAJOR_VERSION@")
+set(CPACK_PACKAGE_VERSION_MINOR "@RTC_MINOR_VERSION@")
+set(CPACK_PACKAGE_VERSION_PATCH "@RTC_REVISION_VERSION@")
+set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "@RTC_DESCRIPTION@")
+set(CPACK_PACKAGE_VENDOR "@RTC_VENDOR@")
+set(CPACK_PACKAGE_INSTALL_DIRECTORY "@PROJECT_NAME@")
+set(CPACK_PACKAGE_FILE_NAME "@PROJECT_NAME@-@RTC_VERSION@")
+set(CPACK_RESOURCE_FILE_LICENSE "@PROJECT_SOURCE_DIR@/LICENSE.txt")
+
+set(CPACK_COMPONENTS_ALL component headers idl pkgconfig doc examples)
+set(CPACK_COMPONENT_COMPONENT_DISPLAY_NAME "RT-Component")
+set(CPACK_COMPONENT_COMPONENT_DESCRIPTION
+    "Component library and stand-alone executable")
+set(CPACK_COMPONENT_HEADERS_DISPLAY_NAME "Header files")
+set(CPACK_COMPONENT_HEADERS_DESCRIPTION
+    "Header files from the component.")
+set(CPACK_COMPONENT_HEADERS_DEPENDS component)
+set(CPACK_COMPONENT_IDL_DISPLAY_NAME "IDL files")
+set(CPACK_COMPONENT_IDL_DESCRIPTION
+    "IDL files for the component's services.")
+set(CPACK_COMPONENT_IDL_DEPENDS component)
+set(CPACK_COMPONENT_PKGCONFIG_DISPLAY_NAME "pkg-config file.")
+set(CPACK_COMPONENT_PKGCONFIG_DESCRIPTION
+    "File for use with the pkg-config system.")
+set(CPACK_COMPONENT_PKGCONFIG_DEPENDS component headers idl)
+set(CPACK_COMPONENT_DOC_DISPLAY_NAME "Documentation")
+set(CPACK_COMPONENT_DOC_DESCRIPTION
+    "User's guides.")
+set(CPACK_COMPONENT_DOC_DEPENDS component)
+set(CPACK_COMPONENT_EXAMPLES_DISPLAY_NAME "Examples")
+set(CPACK_COMPONENT_EXAMPLES_DESCRIPTION
+    "Sample configuration files and other component resources.")
+set(CPACK_COMPONENT_EXAMPLES_DEPENDS component)
+
+IF (WIN32)
+    set(CPACK_NSIS_MUI_ICON "@PROJECT_SOURCE_DIR@/cmake\\rt_middleware_logo.ico")
+    set(CPACK_NSIS_MUI_UNIICON "@PROJECT_SOURCE_DIR@/cmake\\rt_middleware_logo.ico")
+    set(CPACK_PACKAGE_ICON "@PROJECT_SOURCE_DIR@/cmake\\rt_middleware_logo.bmp")
+    set(CPACK_NSIS_HELP_LINK "http://www.openrtm.org")
+    set(CPACK_NSIS_URL_INFO_ABOUT "http://www.openrtm.org")
+    set(CPACK_NSIS_MODIFY_PATH ON)
+    set(CPACK_PACKAGE_EXECUTABLES @RTC_EXECUTABLES@)
+    set(CPACK_NSIS_MENU_LINKS "share/doc/@PROJECT_NAME@/manual.pdf"
+        "User's guide (English)")
+    set(CPACK_NSIS_MENU_LINKS "share/doc/@PROJECT_NAME@/manual_jp.pdf"
+        "User's guide (Japanese)")
+ENDIF (WIN32)
+
