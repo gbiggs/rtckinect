@@ -1,7 +1,7 @@
 /* RTC:Kinect
  *
  * Copyright (C) 2009-2010
- *     Geoffrey Biggs
+ *     Geoffrey Biggs, Yuki Suga and contributors
  *     RT-Synthesis Research Group
  *     Intelligent Systems Research Institute,
  *     National Institute of Advanced Industrial Science and Technology (AIST),
