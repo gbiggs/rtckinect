@@ -97,6 +97,14 @@ macro(COMPILE_IDL_FILES _idl_dir)
 endmacro(COMPILE_IDL_FILES)
 
 
+macro(INSTALL_IDL_FILES _idl_dir _dest_dir)
+    foreach(idl ${ARGN})
+        install(FILES ${_idl_dir}/${idl}.idl DESTINATION ${_dest_dir}
+            COMPONENT IDL)
+    endforeach(idl)
+endmacro(INSTALL_IDL_FILES)
+
+
 include(FindPkgConfig)
 macro(GET_PKG_CONFIG_INFO _pkg _required)
     if(PKG_CONFIG_FOUND)

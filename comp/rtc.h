@@ -27,6 +27,8 @@
 #include <libfreenect.h>
 #include <stdexcept>
 
+#include "idl/led.hh"
+
 using namespace RTC;
 
 
@@ -55,6 +57,8 @@ class RTCKinect
     private:
         RTC::TimedFloat tilt_;
         RTC::InPort<RTC::TimedFloat> tilt_port_;
+        RTCKinectTypes::TimedLEDColour led_;
+        RTC::InPort<RTCKinectTypes::TimedLEDColour> led_port_;
         RTC::CameraImage image_;
         RTC::OutPort<RTC::CameraImage> image_port_;
         RTC::CameraImage depth_;

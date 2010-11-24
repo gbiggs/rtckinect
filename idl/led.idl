@@ -1,0 +1,51 @@
+/* RTC:Kinect
+ *
+ * Copyright (C) 2009-2010
+ *     Geoffrey Biggs, Yuki Suga and contributors
+ *     RT-Synthesis Research Group
+ *     Intelligent Systems Research Institute,
+ *     National Institute of Advanced Industrial Science and Technology (AIST),
+ *     Japan
+ *     All rights reserved.
+ * Licensed under the Eclipse Public License -v 1.0 (EPL)
+ * http://www.opensource.org/licenses/eclipse-1.0.txt
+ *
+ * LED colour data type.
+ */
+
+
+#ifndef LED_IDL__
+#define LED_IDL__
+
+#include "BasicDataType.idl"
+
+module RTCKinectTypes
+{
+    /*!
+     * @enum LEDColour
+     * @brief Available LED colour settings.
+     */
+    enum LEDColour {LED_OFF,
+        LED_GREEN,
+        LED_RED,
+        LED_YELLOW,
+        LED_BLINK_YELLOW,
+        LED_BLINK_GREEN,
+        LED_BLINK_RED_YELLOW};
+
+    /*!
+     * @struct TimedLEDColour
+     * @brief LED colour control.
+     */
+    struct TimedLEDColour
+    {
+        /// Time stamp
+        RTC::Time tm;
+        /// LED colour.
+        LEDColour colour;
+    };
+
+}; // module RTCKinectTypes
+
+#endif // LED_IDL__
+

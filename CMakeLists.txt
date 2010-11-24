@@ -18,21 +18,20 @@ ADD_CUSTOM_TARGET (uninstall "${CMAKE_COMMAND}" -P
 
 # Component source files
 set(comp_srcs comp/rtc.cpp)
-    #comp/service_impl.cpp)
 set(standalone_srcs comp/standalone.cpp)
-set(idls)
+set(idls led)
 
 # Compile the built-in IDL files
 COMPILE_IDL_FILES(${PROJECT_SOURCE_DIR}/idl ${idls})
 FILTER_LIST("${_idl_srcs}" "hh$" _installable_idl_srcs)
 install(FILES ${_installable_idl_srcs}
     DESTINATION ${RTC_INCLUDE_INSTALL_DIR}/idl COMPONENT headers)
+INSTALL_IDL_FILES(${PROJECT_SOURCE_DIR}/idl ${RTC_INCLUDE_INSTALL_DIR}/idl
+    ${idls})
 
 # Get necessary dependency information
 GET_PKG_CONFIG_INFO(openrtm-aist REQUIRED)
-set(libfreenect_dir "/usr/local" CACHE PATH
-    "Directory where libfreenect is installed.")
-GET_PKG_CONFIG_INFO(libusb REQUIRED)
+GET_PKG_CONFIG_INFO(libfreenect REQUIRED)
 
 # Component target
 include_directories(${PROJECT_SOURCE_DIR} ${PROJECT_BINARY_DIR})
@@ -46,19 +45,16 @@ if(openrtm-aist_CFLAGS)
     set_source_files_properties(${comp_srcs} ${proxy_srcs}
         PROPERTIES COMPILE_FLAGS "${openrtm-aist_CFLAGS}")
 endif(openrtm-aist_CFLAGS)
-include_directories(${libfreenect_dir}/include)
-link_directories(${libfreenect_dir}/lib64 ${libfreenect_dir}/lib)
-if(libusb_INCLUDE_DIRS)
-    include_directories(${libusb_INCLUDE_DIRS})
-endif(libusb_INCLUDE_DIRS)
-if(libusb_LIBRARY_DIRS)
-    link_directories(${libusb_LIBRARY_DIRS})
-endif(libusb_LIBRARY_DIRS)
-if(libusb_CFLAGS)
+if(libfreenect_INCLUDE_DIRS)
+    include_directories(${libfreenect_INCLUDE_DIRS})
+endif(libfreenect_INCLUDE_DIRS)
+if(libfreenect_LIBRARY_DIRS)
+    link_directories(${libfreenect_LIBRARY_DIRS})
+endif(libfreenect_LIBRARY_DIRS)
+if(libfreenect_CFLAGS)
     set_source_files_properties(${comp_srcs} ${proxy_srcs}
-        PROPERTIES COMPILE_FLAGS "${libusb_CFLAGS}")
-endif(libusb_CFLAGS)
-include_directories("/usr/include/libusb-1.0")
+        PROPERTIES COMPILE_FLAGS "${libfreenect_CFLAGS}")
+endif(libfreenect_CFLAGS)
 
 add_library(rtckinect SHARED ${comp_srcs} ${proxy_srcs} ${_idl_srcs})
 add_executable(rtckinect_standalone ${standalone_srcs})
@@ -71,14 +67,13 @@ endif(openrtm-aist_LINK_FLAGS)
 if(openrtm-aist_LINK_LIBS)
     target_link_libraries(rtckinect ${openrtm-aist_LINK_LIBS})
 endif(openrtm-aist_LINK_LIBS)
-if(libusb_LINK_FLAGS)
+if(libfreenect_LINK_FLAGS)
     set_target_properties(rtckinect PROPERTIES
-        LINK_FLAGS "${libusb_LINK_FLAGS}")
-endif(libusb_LINK_FLAGS)
-if(libusb_LINK_LIBS)
-    target_link_libraries(rtckinect ${libusb_LINK_LIBS})
-endif(libusb_LINK_LIBS)
-target_link_libraries(rtckinect_standalone freenect)
+        LINK_FLAGS "${libfreenect_LINK_FLAGS}")
+endif(libfreenect_LINK_FLAGS)
+if(libfreenect_LINK_LIBS)
+    target_link_libraries(rtckinect ${libfreenect_LINK_LIBS})
+endif(libfreenect_LINK_LIBS)
 
 install(TARGETS rtckinect LIBRARY DESTINATION ${RTC_LIB_INSTALL_DIR}
     COMPONENT component)

@@ -59,6 +59,7 @@ void depth_cb(freenect_device *dev, void *raw_depth, uint32_t timestamp)
 RTCKinect::RTCKinect(RTC::Manager* manager)
     : RTC::DataFlowComponentBase(manager),
     tilt_port_("tilt", tilt_),
+    led_port_("led", led_),
     image_port_("image", image_),
     depth_port_("depth", depth_),
     raw_accel_port_("raw_accel", raw_accel_),
@@ -116,7 +117,7 @@ RTC::ReturnCode_t RTCKinect::onActivated(RTC::UniqueId ec_id)
     }
 
     freenect_set_tilt_degs(dev_, tilt_.data);
-    freenect_set_led(dev_, LED_RED);
+    freenect_set_led(dev_, LED_GREEN);
 
     image_data.width = 640;
     image_data.width = 480;
@@ -177,6 +178,36 @@ RTC::ReturnCode_t RTCKinect::onExecute(RTC::UniqueId ec_id)
     {
         depth_port_.write(depth_data);
         new_depth = false;
+    }
+
+    if (led_port_.isNew())
+    {
+        led_port_.read();
+        switch(led_.colour)
+        {
+            case RTCKinectTypes::LED_GREEN:
+                freenect_set_led(dev_, LED_GREEN);
+                break;
+            case RTCKinectTypes::LED_RED:
+                freenect_set_led(dev_, LED_RED);
+                break;
+            case RTCKinectTypes::LED_YELLOW:
+                freenect_set_led(dev_, LED_YELLOW);
+                break;
+            case RTCKinectTypes::LED_BLINK_YELLOW:
+                freenect_set_led(dev_, LED_BLINK_YELLOW);
+                break;
+            case RTCKinectTypes::LED_BLINK_GREEN:
+                freenect_set_led(dev_, LED_BLINK_GREEN);
+                break;
+            case RTCKinectTypes::LED_BLINK_RED_YELLOW:
+                freenect_set_led(dev_, LED_BLINK_RED_YELLOW);
+                break;
+            case RTCKinectTypes::LED_OFF:
+            default:
+                freenect_set_led(dev_, LED_OFF);
+                break;
+        }
     }
 
     return RTC::RTC_OK;
