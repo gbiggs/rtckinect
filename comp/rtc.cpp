@@ -64,6 +64,8 @@ RTCKinect::RTCKinect(RTC::Manager* manager)
     depth_port_("depth", depth_),
     raw_accel_port_("raw_accel", raw_accel_),
     mks_accel_port_("mks_accel", mks_accel_),
+    enable_camera_(true),
+    enable_depth_(true),
     dev_num_(0),
     cxt_(NULL),
     dev_(NULL)
@@ -79,6 +81,8 @@ RTCKinect::~RTCKinect()
 
 RTC::ReturnCode_t RTCKinect::onInitialize()
 {
+    bindParameter("enable_camera", enable_camera_, "1");
+    bindParameter("enable_depth", enable_depth_, "1");
     bindParameter("dev_num", dev_num_, "0");
 
     addInPort(tilt_port_.getName(), tilt_port_);
@@ -119,27 +123,33 @@ RTC::ReturnCode_t RTCKinect::onActivated(RTC::UniqueId ec_id)
     freenect_set_tilt_degs(dev_, tilt_.data);
     freenect_set_led(dev_, LED_GREEN);
 
-    image_data.width = 640;
-    image_data.width = 480;
-    image_data.bpp = 32;
-    image_data.format = "bitmap";
-    image_data.fDiv = 1.0;
-    image_data.pixels.length(FREENECT_RGB_SIZE);
-    new_image = false;
-    freenect_set_rgb_callback(dev_, image_cb);
-    freenect_set_rgb_format(dev_, FREENECT_FORMAT_RGB);
-    freenect_start_rgb(dev_);
+    if (enable_camera_)
+    {
+        image_data.width = 640;
+        image_data.width = 480;
+        image_data.bpp = 32;
+        image_data.format = "bitmap";
+        image_data.fDiv = 1.0;
+        image_data.pixels.length(FREENECT_RGB_SIZE);
+        new_image = false;
+        freenect_set_rgb_callback(dev_, image_cb);
+        freenect_set_rgb_format(dev_, FREENECT_FORMAT_RGB);
+        freenect_start_rgb(dev_);
+    }
 
-    depth_data.width = 640;
-    depth_data.width = 480;
-    depth_data.bpp = 11;
-    depth_data.format = "bitmap";
-    depth_data.fDiv = 1.0;
-    depth_data.pixels.length(FREENECT_DEPTH_SIZE);
-    new_depth = false;
-    freenect_set_depth_callback(dev_, depth_cb);
-    freenect_set_depth_format(dev_, FREENECT_FORMAT_11_BIT);
-    freenect_start_depth(dev_);
+    if (enable_depth_)
+    {
+        depth_data.width = 640;
+        depth_data.width = 480;
+        depth_data.bpp = 11;
+        depth_data.format = "bitmap";
+        depth_data.fDiv = 1.0;
+        depth_data.pixels.length(FREENECT_DEPTH_SIZE);
+        new_depth = false;
+        freenect_set_depth_callback(dev_, depth_cb);
+        freenect_set_depth_format(dev_, FREENECT_FORMAT_11_BIT);
+        freenect_start_depth(dev_);
+    }
 
     return RTC::RTC_OK;
 }
@@ -245,12 +255,18 @@ static const char* spec[] =
     "language",          "C++",
     "lang_type",         "compile",
     // Configuration variables
-    "conf.default.cxt_num", "0",
+    "conf.default.enable_camera", "1",
+    "conf.default.enable_depth", "1",
+    "conf.default.dev_num", "0",
     // Widget
     //"conf.__widget__.", "text",
-    "conf.__widget__.cxt_num", "spin",
+    "conf.__widget__.enable_camera", "spin",
+    "conf.__widget__.enable_depth", "spin",
+    "conf.__widget__.dev_num", "spin",
     // Constraints
-    "conf.__constraints__.cxt_num", "0<=x",
+    "conf.__constraints__.enable_camera", "0<=x<=1",
+    "conf.__constraints__.enable_depth", "0<=x<=1",
+    "conf.__constraints__.dev_num", "0<=x",
     ""
 };
 

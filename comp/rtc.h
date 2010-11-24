@@ -68,6 +68,8 @@ class RTCKinect
         RTC::TimedAcceleration3D mks_accel_;
         RTC::OutPort<RTC::TimedAcceleration3D> mks_accel_port_;
 
+        bool enable_camera_;
+        bool enable_depth_;
         unsigned int dev_num_;
         freenect_context* cxt_;
         freenect_device* dev_;
