@@ -159,6 +159,8 @@ RTC::ReturnCode_t RTCKinect::onDeactivated(RTC::UniqueId ec_id)
 {
     freenect_stop_rgb(dev_);
     freenect_stop_depth(dev_);
+    freenect_close_device(dev_);
+    freenect_shutdown(cxt_);
     return RTC::RTC_OK;
 }
 
@@ -227,15 +229,15 @@ RTC::ReturnCode_t RTCKinect::onExecute(RTC::UniqueId ec_id)
 void RTCKinect::process_imu()
 {
     setTimestamp(raw_accel_);
-    int16_t ax, ay, az;
-    freenect_get_raw_accel(dev_, &ax, &ay, &az);
-    raw_accel_.data.ax = ax;
-    raw_accel_.data.ay = ay;
-    raw_accel_.data.az = az;
+    setTimestamp(mks_accel_);
+    freenect_update_device_state(dev_);
+    freenect_raw_device_state* state = freenect_get_device_state(dev_);
+    raw_accel_.data.ax = state->accelerometer_x;
+    raw_accel_.data.ay = state->accelerometer_y;
+    raw_accel_.data.az = state->accelerometer_z;
     raw_accel_port_.write();
 
-    setTimestamp(mks_accel_);
-    freenect_get_mks_accel(dev_, &mks_accel_.data.ax, &mks_accel_.data.ay,
+    freenect_get_mks_accel(state, &mks_accel_.data.ax, &mks_accel_.data.ay,
             &mks_accel_.data.az);
     mks_accel_port_.write();
 }
