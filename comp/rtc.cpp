@@ -27,15 +27,16 @@ bool new_depth;
 RTC::CameraImage depth_data;
 
 
-void image_cb(freenect_device *dev, freenect_pixel *image, uint32_t timestamp)
+void image_cb(freenect_device *dev, void *image, uint32_t timestamp)
 {
+    uint8_t *pimage = (uint8_t *)image;
     coil::Guard<coil::Mutex> guard(mutex);
 
     image_data.tm.sec = timestamp / 1000000000;
     image_data.tm.nsec = timestamp % 1000000000;
-    for (unsigned int ii = 0; ii < FREENECT_RGB_SIZE; ii++)
+    for (unsigned int ii = 0; ii < FREENECT_VIDEO_RGB_SIZE; ii++)
     {
-        image_data.pixels[ii] = image[ii];
+        image_data.pixels[ii] = pimage[ii];
     }
     new_image = true;
 }
@@ -44,13 +45,14 @@ void image_cb(freenect_device *dev, freenect_pixel *image, uint32_t timestamp)
 void depth_cb(freenect_device *dev, void *raw_depth, uint32_t timestamp)
 {
     coil::Guard<coil::Mutex> guard(mutex);
-    freenect_depth* depth(reinterpret_cast<freenect_depth*>(raw_depth));
+    uint16_t *depth = (uint16_t *)raw_depth;
 
     depth_data.tm.sec = timestamp / 1000000000;
     depth_data.tm.nsec = timestamp % 1000000000;
-    for (unsigned int ii = 0; ii < FREENECT_DEPTH_SIZE; ii++)
+    for (unsigned int ii = 0; ii < FREENECT_FRAME_PIX; ii++)
     {
-        depth_data.pixels[ii] = depth[ii];
+      depth_data.pixels[ii*2] = (depth[ii] & 0xff);
+      depth_data.pixels[ii*2+1] = (depth[ii]>>8);
     }
     new_depth = true;
 }
@@ -126,28 +128,28 @@ RTC::ReturnCode_t RTCKinect::onActivated(RTC::UniqueId ec_id)
     if (enable_camera_)
     {
         image_data.width = 640;
-        image_data.width = 480;
-        image_data.bpp = 32;
+	image_data.height = 480;
+        image_data.bpp = 24;
         image_data.format = "bitmap";
         image_data.fDiv = 1.0;
-        image_data.pixels.length(FREENECT_RGB_SIZE);
+        image_data.pixels.length(FREENECT_VIDEO_RGB_SIZE);
         new_image = false;
-        freenect_set_rgb_callback(dev_, image_cb);
-        freenect_set_rgb_format(dev_, FREENECT_FORMAT_RGB);
-        freenect_start_rgb(dev_);
+	freenect_set_video_callback(dev_, image_cb);
+        freenect_set_video_format(dev_, FREENECT_VIDEO_RGB);
+	freenect_start_video(dev_);
     }
 
     if (enable_depth_)
     {
         depth_data.width = 640;
-        depth_data.width = 480;
+        depth_data.height = 480;
         depth_data.bpp = 11;
-        depth_data.format = "bitmap";
+        depth_data.format = "depthmap";
         depth_data.fDiv = 1.0;
-        depth_data.pixels.length(FREENECT_DEPTH_SIZE);
+        depth_data.pixels.length(FREENECT_DEPTH_11BIT_SIZE);
         new_depth = false;
         freenect_set_depth_callback(dev_, depth_cb);
-        freenect_set_depth_format(dev_, FREENECT_FORMAT_11_BIT);
+        freenect_set_depth_format(dev_, FREENECT_DEPTH_11BIT);
         freenect_start_depth(dev_);
     }
 
@@ -157,7 +159,7 @@ RTC::ReturnCode_t RTCKinect::onActivated(RTC::UniqueId ec_id)
 
 RTC::ReturnCode_t RTCKinect::onDeactivated(RTC::UniqueId ec_id)
 {
-    freenect_stop_rgb(dev_);
+    freenect_stop_video(dev_);
     freenect_stop_depth(dev_);
     freenect_close_device(dev_);
     freenect_shutdown(cxt_);
@@ -230,8 +232,8 @@ void RTCKinect::process_imu()
 {
     setTimestamp(raw_accel_);
     setTimestamp(mks_accel_);
-    freenect_update_device_state(dev_);
-    freenect_raw_device_state* state = freenect_get_device_state(dev_);
+    freenect_update_tilt_state(dev_);
+    freenect_raw_tilt_state* state = freenect_get_tilt_state(dev_);
     raw_accel_.data.ax = state->accelerometer_x;
     raw_accel_.data.ay = state->accelerometer_y;
     raw_accel_.data.az = state->accelerometer_z;
